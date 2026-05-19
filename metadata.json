@@ -1,0 +1,8 @@
+{
+  "name": "يمناك - Yemnak Tech",
+  "description": "يمناك للتقنية: شركة متخصصة في تطوير المواقع والبرمجيات، الذكاء الاصطناعي، الأمن السيبراني، وتجربة المستخدم.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
