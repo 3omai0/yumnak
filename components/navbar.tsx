@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import type { Variants } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ArrowUpLeft } from "lucide-react";
@@ -20,11 +21,6 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close menu when route changes
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
-
   // Lock scroll when mobile menu is open
   useEffect(() => {
     if (isOpen) {
@@ -34,13 +30,13 @@ export function Navbar() {
     }
   }, [isOpen]);
 
-  const menuVars = {
+  const menuVars: Variants = {
     initial: { x: "-100%" },
     animate: { x: 0, transition: { type: "spring", damping: 25, stiffness: 200 } },
     exit: { x: "-100%", transition: { type: "spring", damping: 25, stiffness: 200 } },
   };
 
-  const containerVars = {
+  const containerVars: Variants = {
     initial: { opacity: 0 },
     animate: {
       opacity: 1,
@@ -49,7 +45,7 @@ export function Navbar() {
     exit: { opacity: 0 },
   };
 
-  const linkVars = {
+  const linkVars: Variants = {
     initial: { opacity: 0, x: -20 },
     animate: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
     exit: { opacity: 0, x: -10, transition: { duration: 0.2 } },
@@ -164,6 +160,7 @@ export function Navbar() {
                   <motion.div key={link.label} variants={linkVars}>
                     <Link
                       href={link.href}
+                      onClick={() => setIsOpen(false)}
                       className={`text-2xl font-black tracking-tight transition-colors ${
                         pathname === link.href ? "text-brand" : "text-neutral-900 hover:text-brand"
                       }`}
