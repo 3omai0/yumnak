@@ -36,46 +36,46 @@ const projects = [
 
 export function Projects() {
   return (
-    <section id="projects" className="px-6 md:px-10 py-16 relative z-10 w-full max-w-[1200px] mt-10">
-      <div className="mb-10 text-center">
-        <h2 className="text-3xl font-bold text-[#1a1a1a] mb-3 tracking-tight">أعمالنا ومشاريعنا</h2>
-        <p className="text-sm text-neutral-500 max-w-xl mx-auto">
-          نفتخر بتقديم حلول تقنية مبتكرة لعملائنا. تصفح أحدث المشاريع التي قمنا بتنفيذها في مختلف القطاعات.
+    <section id="projects" className="px-6 md:px-10 py-20 relative z-10 w-full max-w-[1200px] mt-10">
+      <div className="mb-16 text-center">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-900 mb-4 tracking-tight">أعمالنا ومشاريعنا</h2>
+        <p className="text-base md:text-lg text-neutral-500 max-w-2xl mx-auto leading-relaxed">
+          نفتخر بتقديم حلول تقنية مبتكرة لعملائنا. تصفح أحدث المشاريع التي قمنا بتنفيذها في مختلف القطاعات بمعايير عالمية.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[220px]">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[240px]">
         {projects.map((project, i) => (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-20px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
+            transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
             key={i}
-            className={`group relative rounded-3xl overflow-hidden cursor-pointer ${project.colSpan} ${project.rowSpan} bg-neutral-100 border border-neutral-200/50 shadow-sm`}
+            className={`group relative rounded-[2rem] overflow-hidden cursor-pointer ${project.colSpan} ${project.rowSpan} bg-neutral-100 border border-neutral-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.12)] transition-all duration-700`}
           >
             {/* Background Image */}
             <Image
               src={project.image}
               alt={project.title}
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              className="object-cover transition-transform duration-1000 group-hover:scale-110"
             />
 
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500" />
 
             {/* Top Right Arrow Button */}
-            <div className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 -translate-y-2 translate-x-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300 border border-white/30">
-              <ArrowUpLeft className="w-5 h-5 text-white" />
+            <div className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 -translate-y-4 translate-x-4 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-500 border border-white/30">
+              <ArrowUpLeft className="w-6 h-6 text-white" />
             </div>
 
             {/* Content Bottom */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col justify-end">
-              <span className="text-[11px] font-semibold tracking-wider text-white/80 mb-2 block px-2.5 py-1 bg-white/20 backdrop-blur-sm w-fit rounded-lg border border-white/20">
+            <div className="absolute bottom-0 left-0 right-0 p-8 z-20 flex flex-col justify-end transform transition-transform duration-500 group-hover:-translate-y-2">
+              <span className="text-[11px] font-bold tracking-wider text-white mb-3 block px-3 py-1.5 bg-white/20 backdrop-blur-md w-fit rounded-lg border border-white/20">
                 {project.category}
               </span>
-              <h3 className="text-xl font-bold text-white leading-tight">
+              <h3 className="text-2xl font-bold text-white leading-tight">
                 {project.title}
               </h3>
             </div>

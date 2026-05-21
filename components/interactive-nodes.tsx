@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -9,9 +9,12 @@ import {
   addEdge,
   Handle,
   Position,
-  BackgroundVariant
+  BackgroundVariant,
+  useReactFlow,
+  ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { useEffect } from 'react';
 
 import {
   BrainCircuit, Cloud, Globe, ShieldCheck, Terminal,
@@ -19,31 +22,103 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
+// Override ReactFlow overflow so hover labels aren't clipped
+const flowOverrideStyle = `
+  .react-flow__renderer,
+  .react-flow__pane,
+  .react-flow__nodes,
+  .react-flow__node,
+  .react-flow__viewport,
+  .react-flow__container {
+    overflow: visible !important;
+  }
+  .react-flow__node:hover {
+    z-index: 9999 !important;
+  }
+` as unknown as string;
+
 // 1. Custom Service Node
 const ServiceNode = ({ data }: any) => {
   const Icon = data.icon;
+  const [hovered, setHovered] = useState(false);
+
   const handleNodeClick = () => {
     window.dispatchEvent(new CustomEvent('highlight-service', {
       detail: { label: data.label.trim(), color: data.color, border: data.border }
     }));
   };
+
   return (
-    <div onClick={handleNodeClick} className="relative w-[104px] h-[104px] z-10 flex items-center justify-center pointer-events-auto">
-      {/* We add 4 handles to the FIXED parent so the lines NEVER move or stretch */}
+    <div
+      onClick={handleNodeClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ zIndex: hovered ? 9999 : 10, position: 'relative', width: 104, height: 104 }}
+      className="flex items-center justify-center pointer-events-auto"
+    >
       <Handle type="target" position={Position.Top} id="top" className="!bg-transparent !border-none" />
       <Handle type="target" position={Position.Bottom} id="bottom" className="!bg-transparent !border-none" />
       <Handle type="target" position={Position.Left} id="left" className="!bg-transparent !border-none" />
       <Handle type="target" position={Position.Right} id="right" className="!bg-transparent !border-none" />
+      <Handle type="source" position={Position.Top} id="src-top" className="!bg-transparent !border-none" />
+      <Handle type="source" position={Position.Bottom} id="src-bottom" className="!bg-transparent !border-none" />
+      <Handle type="source" position={Position.Left} id="src-left" className="!bg-transparent !border-none" />
+      <Handle type="source" position={Position.Right} id="src-right" className="!bg-transparent !border-none" />
 
-      {/* Visual expanding container anchored to the right so the icon stays perfectly still */}
-      <div dir="rtl" className={`group absolute right-0 top-0 p-3 rounded-2xl border backdrop-blur-md shadow-xl flex items-center bg-white ${data.border} transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer whitespace-nowrap`}>
-        <div className={`w-20 h-20 shrink-0 rounded-xl bg-white flex items-center justify-center shadow-sm border ${data.color}`}>
-          <Icon className="w-10 h-10" strokeWidth={1.5} />
+      {/* Card — expands toward expandDir on hover */}
+      {data.expandDir === 'left' ? (
+        // Expand LEFT: anchor card to right edge, label appears to the left of icon
+        <div
+          style={{ zIndex: hovered ? 9999 : 10, position: 'absolute', right: 0, top: 0 }}
+          className={`
+            flex flex-row-reverse items-center p-3 rounded-2xl border backdrop-blur-md shadow-xl
+            bg-white ${data.border}
+            transition-all duration-300 ease-out cursor-pointer whitespace-nowrap
+            ${hovered ? 'scale-105 shadow-2xl' : ''}
+          `}
+        >
+          <div className={`w-20 h-20 shrink-0 rounded-xl bg-white flex items-center justify-center shadow-sm border ${data.color}`}>
+            <Icon className="w-10 h-10" strokeWidth={1.5} />
+          </div>
+          <div
+            style={{
+              maxWidth: hovered ? 200 : 0,
+              opacity: hovered ? 1 : 0,
+              overflow: 'hidden',
+              marginRight: hovered ? 12 : 0,
+              transition: 'max-width 0.3s ease, opacity 0.3s ease, margin-right 0.3s ease',
+            }}
+          >
+            <span className="text-sm font-bold text-neutral-800 block">{data.label}</span>
+          </div>
         </div>
-        <div className="max-w-0 opacity-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[250px] group-hover:opacity-100 group-hover:mr-3">
-          <span className="text-base font-bold text-neutral-800 block">{data.label}</span>
+      ) : (
+        // Expand RIGHT: anchor card to left edge, label appears to the right of icon
+        <div
+          style={{ zIndex: hovered ? 9999 : 10, position: 'absolute', left: 0, top: 0 }}
+          className={`
+            flex items-center p-3 rounded-2xl border backdrop-blur-md shadow-xl
+            bg-white ${data.border}
+            transition-all duration-300 ease-out cursor-pointer whitespace-nowrap
+            ${hovered ? 'scale-105 shadow-2xl' : ''}
+          `}
+        >
+          <div className={`w-20 h-20 shrink-0 rounded-xl bg-white flex items-center justify-center shadow-sm border ${data.color}`}>
+            <Icon className="w-10 h-10" strokeWidth={1.5} />
+          </div>
+          <div
+            style={{
+              maxWidth: hovered ? 200 : 0,
+              opacity: hovered ? 1 : 0,
+              overflow: 'hidden',
+              marginLeft: hovered ? 12 : 0,
+              transition: 'max-width 0.3s ease, opacity 0.3s ease, margin-left 0.3s ease',
+            }}
+          >
+            <span className="text-sm font-bold text-neutral-800 block">{data.label}</span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -57,77 +132,144 @@ const CenterNode = () => {
       <Handle type="source" position={Position.Left} id="left" className="!bg-transparent !border-none" />
       <Handle type="source" position={Position.Right} id="right" className="!bg-transparent !border-none" />
 
-      <Image src="/logo.png" alt="Yomnak" width={140} height={60} className="object-contain drop-shadow-md cursor-pointer hover:scale-105 transition-transform" />
+      <Image
+        src="/logo.png"
+        alt="Yomnak"
+        width={140}
+        height={60}
+        className="object-contain drop-shadow-md cursor-pointer hover:scale-105 transition-transform"
+      />
     </div>
   );
 };
 
-// 3. Define the Nodes and layout
+// ─── Layout ───────────────────────────────────────────────────────────────────
+//  TOP    3 nodes  → evenly spaced horizontally above center
+//  BOTTOM 3 nodes  → evenly spaced horizontally below center
+//  RIGHT  2 nodes  → evenly spaced vertically to the right
+//  LEFT   2 nodes  → evenly spaced vertically to the left
+//
+//  Canvas origin is top-left. Node box is 104×104; we subtract 52 so the
+//  visual center of the box lands exactly on the intended coordinate.
+
+const CX = 430;  // center X
+const CY = 260;  // center Y — pulled up so top nodes sit near y=0
+
+const RX = 320;  // horizontal reach (left / right nodes)
+const RY = 240;  // vertical reach   (top / bottom nodes)
+const GAP = 155;  // gap between sibling nodes on the same side
+
+const off = 52;   // half of 104px node size
+
+// ─── 3. Nodes ────────────────────────────────────────────────────────────────
 const initialNodes = [
-  {
-    id: 'center',
-    type: 'center',
-    position: { x: 345, y: 330 },
-    data: { label: 'YOMNAK' }
-  },
-  { id: '1', type: 'service', position: { x: 180, y: 140 }, data: { label: ' الذكاء الاصطناعي ', icon: BrainCircuit, color: "text-blue-500", border: "border-blue-100" } },
-  { id: '2', type: 'service', position: { x: 400, y: 70 }, data: { label: 'الخدمات السحابية', icon: Cloud, color: "text-emerald-500", border: "border-emerald-100" } },
-  { id: '3', type: 'service', position: { x: 630, y: 140 }, data: { label: 'تصميم المواقع', icon: Globe, color: "text-brand", border: "border-brand/20" } },
-  { id: '4', type: 'service', position: { x: 750, y: 240 }, data: { label: 'تخصيص الأنظمة', icon: Layers, color: "text-amber-500", border: "border-amber-100" } },
-  { id: '5', type: 'service', position: { x: 750, y: 460 }, data: { label: 'البرمجيات الخاصة', icon: Terminal, color: "text-purple-500", border: "border-purple-100" } },
-  { id: '6', type: 'service', position: { x: 630, y: 570 }, data: { label: 'تطبيقات الجوال', icon: Smartphone, color: "text-pink-500", border: "border-pink-100" } },
-  { id: '7', type: 'service', position: { x: 400, y: 630 }, data: { label: 'الأمن السيبراني', icon: ShieldCheck, color: "text-red-500", border: "border-red-100" } },
-  { id: '8', type: 'service', position: { x: 180, y: 570 }, data: { label: 'أتمتة العمليات', icon: Workflow, color: "text-indigo-500", border: "border-indigo-100" } },
-  { id: '9', type: 'service', position: { x: 50, y: 460 }, data: { label: 'الاستشارات', icon: Lightbulb, color: "text-orange-500", border: "border-orange-100" } },
-  { id: '10', type: 'service', position: { x: 50, y: 240 }, data: { label: 'تجربة المستخدم', icon: PenTool, color: "text-teal-500", border: "border-teal-100" } },
+  // ── Center ──
+  { id: 'center', type: 'center', position: { x: CX - 70, y: CY - 30 }, data: { label: 'YOMNAK' } },
+
+  // ── TOP 3  (left · center · right) ──
+  { id: 't1', type: 'service', position: { x: CX - GAP - off, y: CY - RY - off }, data: { label: 'الذكاء الاصطناعي', icon: BrainCircuit, color: 'text-blue-500', border: 'border-blue-100', expandDir: 'right' } },
+  { id: 't2', type: 'service', position: { x: CX - off, y: CY - RY - off }, data: { label: 'الخدمات السحابية', icon: Cloud, color: 'text-emerald-500', border: 'border-emerald-100', expandDir: 'right' } },
+  { id: 't3', type: 'service', position: { x: CX + GAP - off, y: CY - RY - off }, data: { label: 'تصميم المواقع', icon: Globe, color: 'text-brand', border: 'border-brand/20', expandDir: 'left' } },
+
+  // ── RIGHT 2  (upper · lower) ──
+  { id: 'r1', type: 'service', position: { x: CX + RX - off, y: CY - GAP / 2 - off }, data: { label: 'تخصيص الأنظمة', icon: Layers, color: 'text-amber-500', border: 'border-amber-100', expandDir: 'left' } },
+  { id: 'r2', type: 'service', position: { x: CX + RX - off, y: CY + GAP / 2 - off }, data: { label: 'البرمجيات الخاصة', icon: Terminal, color: 'text-purple-500', border: 'border-purple-100', expandDir: 'left' } },
+
+  // ── BOTTOM 3  (left · center · right) ──
+  { id: 'b1', type: 'service', position: { x: CX - GAP - off, y: CY + RY - off }, data: { label: 'تطبيقات الجوال', icon: Smartphone, color: 'text-pink-500', border: 'border-pink-100', expandDir: 'right' } },
+  { id: 'b2', type: 'service', position: { x: CX - off, y: CY + RY - off }, data: { label: 'الأمن السيبراني', icon: ShieldCheck, color: 'text-red-500', border: 'border-red-100', expandDir: 'right' } },
+  { id: 'b3', type: 'service', position: { x: CX + GAP - off, y: CY + RY - off }, data: { label: 'أتمتة العمليات', icon: Workflow, color: 'text-indigo-500', border: 'border-indigo-100', expandDir: 'left' } },
+
+  // ── LEFT 2  (upper · lower) ──
+  { id: 'l1', type: 'service', position: { x: CX - RX - off, y: CY - GAP / 2 - off }, data: { label: 'الاستشارات', icon: Lightbulb, color: 'text-orange-500', border: 'border-orange-100', expandDir: 'right' } },
+  { id: 'l2', type: 'service', position: { x: CX - RX - off, y: CY + GAP / 2 - off }, data: { label: 'تجربة المستخدم', icon: PenTool, color: 'text-teal-500', border: 'border-teal-100', expandDir: 'right' } },
 ];
 
-// 4. Define connections (edges)
+// ─── 4. Edges ─────────────────────────────────────────────────────────────────
+const edgeStyle = { stroke: 'var(--color-brand)', strokeWidth: 2.5 };
+
 const initialEdges = [
-  { id: 'e1', source: 'center', sourceHandle: 'top', target: '1', targetHandle: 'bottom', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e2', source: 'center', sourceHandle: 'top', target: '2', targetHandle: 'bottom', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e3', source: 'center', sourceHandle: 'top', target: '3', targetHandle: 'bottom', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e4', source: 'center', sourceHandle: 'right', target: '4', targetHandle: 'left', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e5', source: 'center', sourceHandle: 'right', target: '5', targetHandle: 'left', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e6', source: 'center', sourceHandle: 'bottom', target: '6', targetHandle: 'top', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e7', source: 'center', sourceHandle: 'bottom', target: '7', targetHandle: 'top', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e8', source: 'center', sourceHandle: 'bottom', target: '8', targetHandle: 'top', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e9', source: 'center', sourceHandle: 'left', target: '9', targetHandle: 'right', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
-  { id: 'e10', source: 'center', sourceHandle: 'left', target: '10', targetHandle: 'right', animated: true, style: { stroke: 'var(--color-brand)', strokeWidth: 3 } },
+  // TOP 3  — center top → node bottom
+  { id: 'et1', source: 'center', sourceHandle: 'top', target: 't1', targetHandle: 'bottom', animated: true, style: edgeStyle },
+  { id: 'et2', source: 'center', sourceHandle: 'top', target: 't2', targetHandle: 'bottom', animated: true, style: edgeStyle },
+  { id: 'et3', source: 'center', sourceHandle: 'top', target: 't3', targetHandle: 'bottom', animated: true, style: edgeStyle },
+
+  // RIGHT 2 — center right → node left
+  { id: 'er1', source: 'center', sourceHandle: 'right', target: 'r1', targetHandle: 'left', animated: true, style: edgeStyle },
+  { id: 'er2', source: 'center', sourceHandle: 'right', target: 'r2', targetHandle: 'left', animated: true, style: edgeStyle },
+
+  // BOTTOM 3 — center bottom → node top
+  { id: 'eb1', source: 'center', sourceHandle: 'bottom', target: 'b1', targetHandle: 'top', animated: true, style: edgeStyle },
+  { id: 'eb2', source: 'center', sourceHandle: 'bottom', target: 'b2', targetHandle: 'top', animated: true, style: edgeStyle },
+  { id: 'eb3', source: 'center', sourceHandle: 'bottom', target: 'b3', targetHandle: 'top', animated: true, style: edgeStyle },
+
+  // LEFT 2  — center left → node right
+  { id: 'el1', source: 'center', sourceHandle: 'left', target: 'l1', targetHandle: 'right', animated: true, style: edgeStyle },
+  { id: 'el2', source: 'center', sourceHandle: 'left', target: 'l2', targetHandle: 'right', animated: true, style: edgeStyle },
 ];
 
+// ─── Auto Fit View on Resize ──────────────────────────────────────────────────
+function AutoFitView() {
+  const { fitView } = useReactFlow();
+  
+  useEffect(() => {
+    // Initial fit
+    setTimeout(() => {
+      fitView({ padding: 0.15, maxZoom: 1 });
+    }, 50);
+
+    const handleResize = () => {
+      fitView({ padding: 0.15, maxZoom: 1 });
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [fitView]);
+  
+  return null;
+}
+
+// ─── Main Export ──────────────────────────────────────────────────────────────
 export function InteractiveNodes() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Register custom nodes
   const nodeTypes = useMemo(() => ({ service: ServiceNode, center: CenterNode }), []);
 
-  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+  const onConnect = useCallback(
+    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
 
   return (
-    <div className="w-full h-[400px] md:h-[450px] relative" dir="ltr">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={{ padding: 0.3 }}
-        proOptions={{ hideAttribution: true }}
-        className="!overflow-visible"
-        zoomOnScroll={false}
-        panOnDrag={false}
-        zoomOnDoubleClick={false}
-        preventScrolling={false}
-        nodesDraggable={false}
-        nodesConnectable={false}
-        elementsSelectable={false}
-      >
-        <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="#e5e5e5" />
-      </ReactFlow>
-    </div>
+    <ReactFlowProvider>
+      <style>{flowOverrideStyle}</style>
+      <div className="w-full h-full min-h-[400px] md:min-h-[500px]" dir="ltr">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          fitView
+          fitViewOptions={{ padding: 0.15, includeHiddenNodes: false }}
+          style={{ overflow: "visible" }}
+          minZoom={0.1}
+          maxZoom={1.5}
+          proOptions={{ hideAttribution: true }}
+          zoomOnScroll={false}
+          panOnDrag={false}
+          zoomOnDoubleClick={false}
+          preventScrolling={false}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={false}
+        >
+          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#e5e5e5" />
+          <AutoFitView />
+        </ReactFlow>
+      </div>
+    </ReactFlowProvider>
   );
 }
