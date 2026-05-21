@@ -19,7 +19,7 @@ export function BlogSection() {
             المدونة والمقالات
           </span>
           <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-neutral-950 md:text-5xl leading-tight">
-            أفكار نشاركها،
+            أفكار نشاركها
             <br />
             <span className="text-brand">لتنمو أعمالك.</span>
           </h2>
