@@ -64,7 +64,7 @@ export function BeforeAfter() {
       >
         {/* "Before" Image (Bottom layer) - Wireframe / Skeleton */}
         <Image
-          src="/befor.png"
+          src="/befor1.png"
           alt="مرحلة التخطيط"
           fill
           className="object-cover select-none pointer-events-none"
@@ -80,7 +80,7 @@ export function BeforeAfter() {
           style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
         >
           <Image
-            src="/after.jpg"
+            src="/after1.jpg"
             alt="المنتج النهائي"
             fill
             className="object-cover"
