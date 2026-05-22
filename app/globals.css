@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@plugin "@tailwindcss/typography";
 @theme {
   --font-sans: var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
   --color-brand: #758c81;

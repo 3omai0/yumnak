@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 export function Hero() {
    return (
-      <section className="relative min-h-[90vh] w-full flex flex-col justify-center items-start py-24 overflow-hidden px-6 md:px-10">
+      <section className="relative min-h-[90vh] w-full flex flex-col justify-center items-start py-12 md:py-24 overflow-hidden px-6 md:px-10">
          <div className="absolute top-0 left-0 w-full h-[600px] bg-[radial-gradient(ellipse_at_50%_-20%,var(--color-brand-light)_0%,transparent_60%)] opacity-40 pointer-events-none" />
 
          <div className="w-full relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -60,7 +60,7 @@ export function Hero() {
                </motion.div>
             </div>
 
-            <div className="relative w-full h-full min-h-[500px] flex items-center justify-center">
+            <div className="relative w-full h-full min-h-[350px] md:min-h-[500px] flex items-center justify-center">
                <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}

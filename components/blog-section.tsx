@@ -3,11 +3,31 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { ArrowUpLeft, Clock } from "lucide-react";
-import { blogPosts } from "@/lib/blog-data";
+import { ArrowUpLeft, Edit2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase/client";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
 
 export function BlogSection() {
-  const [featured, ...rest] = blogPosts;
+  const [posts, setPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from('blog_posts')
+        .select('slug, title, excerpt, image_url, category, created_at')
+        .order('created_at', { ascending: false })
+        .limit(3);
+      if (data) setPosts(data);
+    }
+    load();
+  }, []);
+
+  if (posts.length === 0) return null;
+
+  const featured = posts[0];
+  const rest = posts.slice(1);
 
   return (
     <section className="relative w-full max-w-[1200px] px-6 py-20 md:px-10">
@@ -47,12 +67,18 @@ export function BlogSection() {
             <div className="relative h-full overflow-hidden rounded-[2.5rem] bg-neutral-100 shadow-[0_20px_60px_rgba(15,23,42,0.07)] border border-neutral-200/60 transition-all duration-500 hover:shadow-[0_30px_80px_rgba(15,23,42,0.10)] hover:-translate-y-1">
               {/* Image */}
               <div className="relative h-64 w-full overflow-hidden">
-                <Image
-                  src={featured.image}
-                  alt={featured.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                {featured.image_url ? (
+                  <Image
+                    src={featured.image_url}
+                    alt={featured.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-neutral-100">
+                    <Edit2 className="w-12 h-12 text-neutral-300" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent" />
                 <span className="absolute top-4 right-4 rounded-xl bg-brand px-3 py-1 text-[11px] font-bold text-white shadow">
                   {featured.category}
@@ -69,7 +95,7 @@ export function BlogSection() {
                 </p>
                 <div className="mt-6 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs text-neutral-400">
-                    <span>{featured.date}</span>
+                    <span>{format(new Date(featured.created_at), 'd MMMM yyyy', { locale: ar })}</span>
                   </div>
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand group-hover:gap-2.5 transition-all">
                     اقرأ المقال
@@ -95,12 +121,18 @@ export function BlogSection() {
               <Link href={`/blog/${post.slug}`} className="group flex h-full overflow-hidden rounded-[2rem] border border-neutral-200/80 bg-white shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition-all duration-400 hover:border-brand/25 hover:shadow-[0_16px_50px_rgba(15,23,42,0.07)] hover:-translate-y-0.5">
                 {/* Thumbnail (Full Height Side) */}
                 <div className="relative h-full w-[140px] sm:w-[180px] shrink-0 overflow-hidden bg-neutral-100 border-l border-neutral-100/50">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
+                  {post.image_url ? (
+                    <Image
+                      src={post.image_url}
+                      alt={post.title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Edit2 className="w-6 h-6 text-neutral-300" />
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/10 to-transparent pointer-events-none" />
                 </div>
                 {/* Text Content */}
@@ -113,7 +145,7 @@ export function BlogSection() {
                     {post.excerpt}
                   </p>
                   <div className="flex items-center gap-2 mt-4 text-xs text-neutral-400">
-                    <span className="font-medium">{post.date}</span>
+                    <span className="font-medium">{format(new Date(post.created_at), 'd MMMM yyyy', { locale: ar })}</span>
                   </div>
                 </div>
               </Link>
@@ -131,3 +163,4 @@ export function BlogSection() {
     </section>
   );
 }
+
