@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Twitter, Linkedin, Instagram, Github } from "lucide-react";
+import { Mail, MapPin, Phone, Twitter, Linkedin, Instagram, Github, Facebook, Youtube, Ghost, Music2 } from "lucide-react";
 import Link from "next/link";
 
 export function Footer() {
@@ -13,15 +13,27 @@ export function Footer() {
             <p className="text-sm text-neutral-500 leading-relaxed mb-6 max-w-xs">
               شريكك التقني الموثوق في رحلة التحول الرقمي. نقدم حلولاً برمجية مبتكرة وتصاميم استثنائية لدعم نمو أعمالك.
             </p>
-            <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
+            <div className="flex flex-wrap gap-3">
+              <a href="https://twitter.com/Yomnak_IT" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
                 <Twitter className="w-4 h-4" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
+              <a href="https://www.linkedin.com/company/yomnak" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
                 <Linkedin className="w-4 h-4" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
+              <a href="https://www.instagram.com/yomnak_it" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
                 <Instagram className="w-4 h-4" />
+              </a>
+              <a href="https://www.facebook.com/it.yomnak" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="https://www.youtube.com/@YOMNAK_IT" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
+                <Youtube className="w-4 h-4" />
+              </a>
+              <a href="https://www.tiktok.com/@yomnak_it" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
+                <Music2 className="w-4 h-4" />
+              </a>
+              <a href="https://www.snapchat.com/add/yomnak_it" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 hover:bg-brand/10 hover:text-brand transition-colors">
+                <Ghost className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -54,7 +66,7 @@ export function Footer() {
             <ul className="flex flex-col gap-4 text-sm text-neutral-500">
               <li className="flex items-center gap-3">
                 <MapPin className="w-4 h-4 text-brand" />
-                <span>الرياض، المملكة العربية السعودية</span>
+                <span>السعودية، المدينة المنورة، حي القصواء</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-brand" />
@@ -62,7 +74,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-brand" />
-                <span>hello@yomnak.com</span>
+                <span>info@yomnak.com</span>
               </li>
             </ul>
           </div>

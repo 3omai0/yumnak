@@ -22,6 +22,10 @@ import {
   Terminal,
   Twitter,
   Workflow,
+  Facebook,
+  Youtube,
+  Ghost,
+  Music2
 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -30,8 +34,8 @@ const contactChannels = [
   {
     icon: Mail,
     label: "البريد الإلكتروني",
-    value: "hello@yomnak.com",
-    href: "mailto:hello@yomnak.com",
+    value: "info@yomnak.com",
+    href: "mailto:info@yomnak.com",
     sub: "نرد خلال 24 ساعة عمل",
   },
   {
@@ -44,16 +48,20 @@ const contactChannels = [
   {
     icon: MapPin,
     label: "موقعنا",
-    value: "الرياض، السعودية",
+    value: "السعودية، المدينة المنورة",
     href: "#",
-    sub: "حي الصحافة، طريق الملك فهد",
+    sub: "حي القصواء",
   },
 ];
 
 const socialLinks = [
-  { icon: Twitter, label: "Twitter / X", href: "#" },
-  { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Linkedin, label: "LinkedIn", href: "#" },
+  { icon: Twitter, label: "Twitter / X", href: "https://twitter.com/Yomnak_IT" },
+  { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/yomnak_it" },
+  { icon: Linkedin, label: "LinkedIn", href: "https://www.linkedin.com/company/yomnak" },
+  { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/it.yomnak" },
+  { icon: Youtube, label: "YouTube", href: "https://www.youtube.com/@YOMNAK_IT" },
+  { icon: Music2, label: "TikTok", href: "https://www.tiktok.com/@yomnak_it" },
+  { icon: Ghost, label: "Snapchat", href: "https://www.snapchat.com/add/yomnak_it" },
 ];
 
 const allServices = [
